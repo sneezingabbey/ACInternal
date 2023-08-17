@@ -5,7 +5,7 @@ VisualStudioVersion = 17.7.34009.444
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACInternal", "ACInternal\ACInternal.vcxproj", "{E0B4E99C-BD95-49A9-B007-5C1613B3AFFF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACInjector", "ACInjector\ACInjector\ACInjector.vcxproj", "{A5BD5961-338B-4B17-9423-6CF997F6DA35}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACInjector", "ACInjector\ACInjector.vcxproj", "{A5BD5961-338B-4B17-9423-6CF997F6DA35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
