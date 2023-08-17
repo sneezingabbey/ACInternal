@@ -78,16 +78,16 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\shant\Desktop\AssaultCubePractice\ACInternal\minhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shant\Desktop\AssaultCubePractice\ACInternal\ACInternal\minhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>C:\Users\shant\Desktop\AssaultCubePractice\ACInternal\minhook\libMinHook.x86.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\shant\Desktop\AssaultCubePractice\ACInternal\ACInternal\minhook\libMinHook.x86.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "C:\Users\shant\Desktop\AssaultCubePractice\ACInjector\Debug"
+      <Command>copy "$(TargetPath)" "C:\Users\shant\Desktop\AssaultCubePractice\ACInternal\ACInjector\Debug"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -104,6 +104,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>C:\Users\shant\Desktop\AssaultCubePractice\ACInternal\ACInternal\minhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,7 +112,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>C:\Users\shant\Desktop\AssaultCubePractice\ACInternal\minhook\libMinHook.x86.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\shant\Desktop\AssaultCubePractice\ACInternal\ACInternal\minhook\libMinHook.x86.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
