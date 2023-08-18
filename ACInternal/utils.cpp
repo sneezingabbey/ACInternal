@@ -40,7 +40,6 @@ namespace utils {
         return moduleBaseAddr;
     }
 
-
 	HWND GetProcessWindow() {
 		HWND hwnd = nullptr;
 		EnumWindows(EnumWindowsCallback, reinterpret_cast<LPARAM>(&hwnd));
@@ -51,5 +50,4 @@ namespace utils {
 
 		return hwnd;
 	}
-
 }

@@ -17,6 +17,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_opengl3_loader.h"
+#include <windowsx.h>
 
 // Our state
 bool show_demo_window = true;
@@ -62,10 +63,11 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReser
 //Reclass address: [<ac_client.exe>+00195404]
 struct PlayerEntity
 {
-    float posX; //0x0000
-    float posY; //0x0004
-    float posZ; //0x0008
-    char pad_000C[224]; //0x000C
+    char pad_0000[4]; //0x0000
+    float posX; //0x0004
+    float posY; //0x0008
+    float posZ; //0x000C
+    char pad_0010[220]; //0x0010
     int32_t health; //0x00EC
     int32_t kevlarHealth; //0x00F0
     char pad_00F4[20]; //0x00F4
@@ -77,8 +79,10 @@ struct PlayerEntity
     char pad_0130[16]; //0x0130
     int32_t primaryAmmo; //0x0140
     int32_t grenadeAmmo; //0x0144
-    char pad_0148[3832]; //0x0148
+    char pad_0148[3836]; //0x0148
 };
+
+PlayerEntity* player;
 
 // When you create a new thread using the Windows API (e.g., CreateThread or _beginthreadex), 
 // the conventional return type for the thread function is DWORD. 
@@ -109,7 +113,7 @@ DWORD WINAPI MainThread(HMODULE hModule) {
     // Casts the memory address 'localPlayerAddress' to a pointer of type 'PlayerEntity'.
     // This means we are telling the compiler to treat the memory at 'localPlayerAddress' 
     // as if it holds a 'PlayerEntity' object. The 'player' pointer now points to this location.
-    PlayerEntity* player = (PlayerEntity*)localPlayerAddress;
+    player = (PlayerEntity*)localPlayerAddress;
     if (!player) {
         std::cerr << "Failed to create a PlayerEntity that points at localPlayerAddress" << std::endl;
         return 1;
@@ -202,7 +206,24 @@ BOOL WINAPI DetourwglSwapLayerBuffers(HDC hdc) {
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
+        // Create an ImGui window
+        if (ImGui::Begin("Player Info")) {  // The window will have the title "Player Info"
+
+            ImGui::Text("PositionX: %.2f", player->posX);
+            ImGui::Text("PositionY: %.2f", player->posY);
+            ImGui::Text("PositionZ: %.2f", player->posZ);
+            ImGui::Text("Health: %d", player->health);
+            ImGui::Text("KevlarHealth: %d", player->kevlarHealth);
+            ImGui::Text("PrimaryAmmo: %d", player->primaryAmmo);
+            ImGui::Text("PrimaryAmmo2: %d", player->primaryAmmo2);
+            ImGui::Text("SecondaryAmmo: %d", player->secondaryAmmo);
+            ImGui::Text("SecondaryAmmo2: %d", player->secondaryAmmo2);
+            ImGui::Text("GrenadeAmmo: %d", player->grenadeAmmo);
+
+            ImGui::Text("Unload Button: F5");
+
+            ImGui::End();  // End of the ImGui window
+        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
