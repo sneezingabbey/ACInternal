@@ -5,10 +5,17 @@
 #include <Windows.h>
 #include <TlHelp32.h>
 
+bool FileExists(const char* filePath);
+
 bool InjectDLL(DWORD processId, const char* dllPath) {
     HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION |
         PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ,
         FALSE, processId);
+
+    if (!FileExists(dllPath)) {
+        std::cerr << "The DLL does not exist at the specified path." << std::endl;
+        return false;
+    }
 
     if (!hProcess) {
         std::cerr << "Failed to open the process of a processId: " << processId << std::endl;
@@ -78,6 +85,24 @@ DWORD GetProcessID(const char* processName) {
     return processId;
 }
 
+bool FileExists(const char* filePath)
+{
+    DWORD fileAttr;
+
+    fileAttr = GetFileAttributesA(filePath);
+    if (fileAttr == INVALID_FILE_ATTRIBUTES)
+    {
+        return false;  // Something is wrong with your path!
+    }
+
+    if (fileAttr & FILE_ATTRIBUTE_DIRECTORY)
+    {
+        return false;  // This is a directory!
+    }
+
+    return true;  // File exists
+}
+
 int main()
 {
     const char* targetProcessName = "ac_client.exe";
@@ -92,7 +117,7 @@ int main()
         return 1;
     }
 
-    const char* dllPath = "C:\\Users\\shant\\Desktop\\AssaultCubePractice\\ACInjector\\Debug\\ACInternal.dll";
+    const char* dllPath = "C:\\Users\\shant\\Desktop\\AssaultCubePractice\\ACInternal\\Debug\\ACInternal.dll";
 
     if (InjectDLL(processId, dllPath)) {
         std::cout << "DLL injected successfully." << std::endl;

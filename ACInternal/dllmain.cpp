@@ -4,8 +4,21 @@
 #include <iostream>
 #include <tlhelp32.h>
 #include "MinHook.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_win32.h"
+
+// Our state
+bool show_demo_window = true;
+bool show_another_window = false;
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 DWORD WINAPI MainThread(HMODULE hModule);
+void HookOpenGL();
+BOOL APIENTRY h_wglSwapBuffers(HDC hdc);
+
+typedef BOOL(APIENTRY* t_wglSwapBuffers)(HDC hdc);
+t_wglSwapBuffers o_wglSwapBuffers;
 
 FILE* stream;
 
@@ -67,32 +80,50 @@ DWORD GetModuleBaseAddress(const char* moduleName) {
     return moduleBaseAddr;
 }
 
+ImGuiIO& createImGui(HWND hwnd) {
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    // Setup Dear ImGui style
+    IMGUI_CHECKVERSION();
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplWin32_InitForOpenGL(hwnd);
+    ImGui_ImplOpenGL3_Init();
+    return io;
+}
+
+void destroyImGui() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+}
+
 DWORD WINAPI MainThread(HMODULE hModule) {
     AllocConsole();
     freopen_s(&stream, "CONOUT$", "w", stdout);
-    std::cout << "We Can Use Console For Debugging!\n";
 
     MH_STATUS status = MH_Initialize();
-
-    if (status != MH_OK)
-    {
+    if (status != MH_OK) {
         std::cerr << "Failed to initialize MinHook! Error: " << MH_StatusToString(status) << std::endl;
         return 1;
     }
-
     std::cout << "MinHook initialized successfully!" << std::endl;
 
-    // Assuming you have the moduleBaseAddress correctly retrieved:
     DWORD moduleBaseAddress = GetModuleBaseAddress("ac_client.exe");
-
-    // The static offset to the local player entity:
     const DWORD localPlayerOffset = 0x0017E0A8;
-
-    // Get the pointer stored at "ac_client.exe"+0017E0A8
     DWORD* localPlayerBasePtr = (DWORD*)(moduleBaseAddress + localPlayerOffset);
 
-    // Dereference the pointer to get the actual player entity's address
+    if (!localPlayerBasePtr) {
+        std::cerr << "Failed to find localPlayerBasePtr." << std::endl;
+        return 1;
+    }
+
     PlayerEntity* player = (PlayerEntity*)*localPlayerBasePtr;
+    if (!player) {
+        std::cerr << "Failed to dereference local player." << std::endl;
+        return 1;
+    }
 
     std::cout << "LocalPlayer: 0x" << std::hex << std::uppercase << (uintptr_t)localPlayerBasePtr << std::endl;
 
@@ -103,7 +134,18 @@ DWORD WINAPI MainThread(HMODULE hModule) {
     std::cout << "LocalSecondaryAmmo: " << player->secondaryAmmo << std::endl;
     std::cout << "LocalSecondaryAmmo2: " << player->secondaryAmmo2 << std::endl;
     std::cout << "LocalGranadeAmmo: " << player->grenadeAmmo << std::endl;
-    
+
+    // Create ImGui context
+    /*/IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::StyleColorsDark();
+
+    // Init
+    ImGui_ImplWin32_Init(GetActiveWindow());
+    ImGui_ImplOpenGL3_Init();*/
+
+    HookOpenGL();
 
     while (true) {
         if (GetAsyncKeyState(VK_F5) & 0x8000) {
@@ -111,13 +153,43 @@ DWORD WINAPI MainThread(HMODULE hModule) {
         }
     }
 
-    if (stream == NULL) return 0;
+    if (stream) {
+        fclose(stream);
+    }
 
     MH_Uninitialize();
+    /*ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();*/
 
-    fclose(stream);
     FreeConsole();
-
     FreeLibraryAndExitThread(hModule, 0);
+
     return 0;
+}
+
+void HookOpenGL() {
+    MH_STATUS status = MH_CreateHookApi(L"opengl32.dll", "wglSwapBuffers", &h_wglSwapBuffers, reinterpret_cast<LPVOID*>(&o_wglSwapBuffers));
+    if (status == MH_OK) {
+        std::cout << "[Hook Status] Original wglSwapBuffers at address: 0x"
+            << std::hex << std::uppercase << reinterpret_cast<uintptr_t>(o_wglSwapBuffers);
+    }
+    std::cout << " - Hook status: " << MH_StatusToString(status) << std::endl;
+    MH_EnableHook(MH_ALL_HOOKS);
+}
+
+
+
+BOOL APIENTRY h_wglSwapBuffers(HDC hdc) {
+    o_wglSwapBuffers(hdc);
+    /*ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("______ Hack");
+    ImGui::SetWindowSize(ImVec2(512, 128), ImGuiCond_Once);
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+
+    return true;
 }
