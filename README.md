@@ -3,7 +3,8 @@ This repository contains an internal cheat for Assault Cube, leveraging MinHook 
 
 The primary purpose of this cheat is educational, aimed at demonstrating how to hook functions effectively and how to implement a real-time updating ImGui overlay.
 
-![ac_client_8S5mRWlmVl](https://github.com/sneezingabbey/ACInternal/assets/61197745/adf25492-c24f-4ce1-b813-ec4f0d4c59b9)
+![ac_client_8S5mRWlmVl](https://github.com/sneezingabbey/ACInternal/assets/61197745/fa4159b8-198c-422e-8cce-dcca6724811d)
+
 
 ## Prerequisites
 
