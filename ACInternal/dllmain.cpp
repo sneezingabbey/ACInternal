@@ -175,26 +175,30 @@ DWORD WINAPI MainThread(HMODULE hModule) {
 
 void HookOpenGL() {
     HMODULE hOpenGL = GetModuleHandle("opengl32.dll");
-    if (hOpenGL) {
-
-        void* originalWglSwapLayersBuffers = GetProcAddress(hOpenGL, "wglSwapBuffers");
-
-        MH_STATUS status = MH_CreateHook(originalWglSwapLayersBuffers, &DetourwglSwapLayerBuffers, (LPVOID*)&fpOriginalwglSwapLayerBuffers);
-        if (status != MH_OK) {
-            std::cerr << "Failed to create the hook: " << MH_StatusToString(status) << std::endl;
-        }
-
-        MH_STATUS enableStatus = MH_EnableHook(originalWglSwapLayersBuffers);
-        if (enableStatus != MH_OK) {
-            std::cerr << "Failed to enable the hook: " << MH_StatusToString(status) << std::endl;
-        }
-        else {
-            std::cout << "wglSwapBuffers address: 0x" << &originalWglSwapLayersBuffers << std::endl;
-        }
-    }
-    else {
+    if (!hOpenGL) {
         std::cerr << "Failed to get module handle for opengl32.dll!" << std::endl;
+        return;
     }
+
+    void* originalWglSwapBuffers = GetProcAddress(hOpenGL, "wglSwapBuffers");
+    if (!originalWglSwapBuffers) {
+        std::cerr << "Failed to get address of wglSwapBuffers!" << std::endl;
+        return;
+    }
+
+    MH_STATUS status = MH_CreateHook(originalWglSwapBuffers, &DetourwglSwapLayerBuffers, (LPVOID*)&fpOriginalwglSwapLayerBuffers);
+    if (status != MH_OK) {
+        std::cerr << "Failed to create the hook: " << MH_StatusToString(status) << std::endl;
+        return;
+    }
+
+    MH_STATUS enableStatus = MH_EnableHook(originalWglSwapBuffers);
+    if (enableStatus != MH_OK) {
+        std::cerr << "Failed to enable the hook: " << MH_StatusToString(enableStatus) << std::endl;
+        return;
+    }
+
+    std::cout << "wglSwapBuffers address: 0x" << originalWglSwapBuffers << std::endl;
 }
 
 BOOL WINAPI DetourwglSwapLayerBuffers(HDC hdc) {
